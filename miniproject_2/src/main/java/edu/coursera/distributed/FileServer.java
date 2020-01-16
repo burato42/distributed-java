@@ -72,16 +72,17 @@ public final class FileServer {
              *
              * Don't forget to close the output stream.
              */
-            final File fullPath = new File(rootDir, path);
 
             OutputStream out = s.getOutputStream();
             PrintWriter printer = new PrintWriter(out);
 
-            if (fullPath.isFile()) {
+            final String content = fs.readFile(new PCDPPath(path));
+
+            if (content != null) {
                 printer.write("HTTP/1.0 200 OK\r\n");
                 printer.write("Server: FileServer\r\n");
                 printer.write("\r\n");
-                printer.write(new String(Files.readAllBytes(fullPath.toPath())) + "\r\n");
+                printer.write(content);
             } else {
                 printer.write("HTTP/1.0 404 Not Found\r\n");
                 printer.write("Server: FileServer\r\n");
