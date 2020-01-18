@@ -1,7 +1,6 @@
 package edu.coursera.distributed;
 
 import edu.coursera.distributed.util.MPI;
-import edu.coursera.distributed.util.MPI.MPI_Request;
 import edu.coursera.distributed.util.MPI.MPIException;
 
 /**
@@ -77,17 +76,16 @@ public class MatrixMult {
         }
 
         if (myrank == 0) {
-            MPI_Request[] requests = new MPI_Request[size - 1];
+            MPI.MPI_Request[] requests = new MPI.MPI_Request[size - 1];
             for (int i = 1; i < size; i++) {
-                final int rankStartRow = i * rowChunk;
+                int rankStartRow = i * rowChunk;
                 int rankEndRow = (i + 1) * rowChunk;
                 if (rankEndRow > nrows) rankEndRow = nrows;
 
-                final int rowOffset = rankEndRow * c.getNCols();
+                final int rowOffset = rankStartRow * c.getNCols();
                 final int nElements = (rankEndRow - rankStartRow) * c.getNCols();
 
-                requests[i - 1] = mpi.MPI_Irecv(c.getValues(), rowOffset, nElements,  i, i,
-                        mpi.MPI_COMM_WORLD);
+                requests[i - 1] = mpi.MPI_Irecv(c.getValues(), rowOffset, nElements, i, i, mpi.MPI_COMM_WORLD);
             }
             mpi.MPI_Waitall(requests);
         } else {
